@@ -1,6 +1,7 @@
 package com.example.practicum7
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +19,12 @@ class TicketHolder (
                     "${ticket.title} clicked!",
                     Toast.LENGTH_SHORT)
                     .show()
+            }
+
+            binding.ticketSolved.visibility = if(ticket.isSolved) {
+                View.VISIBLE
+            } else{
+                View.GONE
             }
         }
 
