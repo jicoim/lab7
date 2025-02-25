@@ -6,13 +6,18 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.practicum7.databinding.ListItemTicketBinding
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class TicketHolder (
 
     val binding: ListItemTicketBinding ): RecyclerView.ViewHolder(binding.root){
         fun bind(ticket: Ticket){
             binding.ticketTitle.text = ticket.title
-            binding.ticketDate.text = ticket.date.toString()
+//            binding.ticketDate.text = ticket.date.toString()
+
+            val dateFormat = SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault())
+            binding.ticketDate.text = dateFormat.format(ticket.date)
 
             binding.root.setOnClickListener {
                 Toast.makeText(binding.root.context,
