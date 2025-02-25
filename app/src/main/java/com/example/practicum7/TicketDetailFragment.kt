@@ -28,10 +28,9 @@ class TicketDetailFragment : Fragment() {
             id = UUID.randomUUID(),
             title = "",
             date = Date(),
-            isSolved = false
+            isSolved = false,
+            requiresManager = false
         )
-
-
     }
 
     override fun onCreateView(
@@ -57,14 +56,11 @@ class TicketDetailFragment : Fragment() {
             ticketSolved.setOnCheckedChangeListener { _, isChecked ->
                 ticket = ticket.copy(isSolved = isChecked)
             }
-
         }
-
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
-
 }

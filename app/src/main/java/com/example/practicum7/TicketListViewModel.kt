@@ -12,10 +12,11 @@ class TicketListViewModel: ViewModel() {
                 id = UUID.randomUUID(),
                 title = "ticket #$i",
                 date = Date(),
-                isSolved = i%2 == 0
+                isSolved = i%2 == 0,
+                // Make every third ticket require manager intervention
+                requiresManager = i%3 == 0
             )
             tickets+=ticket
         }
     }
-
 }
