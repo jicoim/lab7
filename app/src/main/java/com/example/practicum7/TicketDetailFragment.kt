@@ -19,6 +19,8 @@ class TicketDetailFragment : Fragment() {
         }
     private lateinit var ticket: Ticket
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -28,6 +30,8 @@ class TicketDetailFragment : Fragment() {
             date = Date(),
             isSolved = false
         )
+
+
     }
 
     override fun onCreateView(
