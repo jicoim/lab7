@@ -7,8 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.practicum7.databinding.FragmentTicketListBinding
+import kotlinx.coroutines.launch
 
 private const val TAG = "TicketListFragment"
 
@@ -36,11 +40,27 @@ class TicketListFragment:Fragment() {
         _binding = FragmentTicketListBinding.inflate(inflater,container,false)
         binding.ticketRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        val tickets = ticketListViewmodel.tickets
-        val adapter = TicketListAdapter(tickets)
-        binding.ticketRecyclerView.adapter = adapter
+//        val tickets = ticketListViewmodel.tickets
+//        val adapter = TicketListAdapter(tickets)
+//        binding.ticketRecyclerView.adapter = adapter
 
         return binding.root
+
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED){
+                val tickets = ticketListViewmodel.tickets
+                val adapter = TicketListAdapter(tickets)
+                binding.ticketRecyclerView.adapter = adapter
+            }
+
+        }
 
     }
 
