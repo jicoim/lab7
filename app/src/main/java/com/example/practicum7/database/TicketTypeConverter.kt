@@ -2,6 +2,7 @@ package com.example.practicum7.database
 
 import androidx.room.TypeConverter
 import java.util.Date
+import java.util.UUID
 
 class TicketTypeConverter {
 
@@ -15,4 +16,13 @@ class TicketTypeConverter {
     fun toDate(millisSinceEpoch: Long): Date {
         return Date(millisSinceEpoch)
     }
-}
+
+    @TypeConverter
+    fun fromUUID(uuid: UUID): String {
+        return uuid.toString()
+    }
+
+    @TypeConverter
+    fun toUUID(uuid: String): UUID {
+        return UUID.fromString(uuid)
+    }}

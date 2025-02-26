@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.practicum7.databinding.FragmentTicketListBinding
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 private const val TAG = "TicketListFragment"
@@ -28,7 +29,7 @@ class TicketListFragment:Fragment() {
 
     override fun onCreate (savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
-        Log.d(TAG,"Total tickets: ${ticketListViewmodel.tickets.size}")
+//        Log.d(TAG,"Total tickets: ${ticketListViewmodel.tickets.size}")
 
     }
 
@@ -55,9 +56,9 @@ class TicketListFragment:Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(
                 Lifecycle.State.STARTED){
-                val tickets = ticketListViewmodel.tickets
-                val adapter = TicketListAdapter(tickets)
-                binding.ticketRecyclerView.adapter = adapter
+                ticketListViewmodel.tickets.collect{ tickets->
+                    binding.ticketRecyclerView.adapter = TicketListAdapter(tickets)
+                }
             }
 
         }
