@@ -22,7 +22,7 @@ class TicketHolder(
 
     fun bind(ticket: Ticket) {
         binding.ticketTitle.text = ticket.title
-        binding.ticketDate.text = dateFormat.format(Date(ticket.date)) // ✅ Format the epoch date
+        binding.ticketDate.text = dateFormat.format(Date(ticket.date))
 
         binding.root.setOnClickListener {
             onTicketClicked(ticket.id)

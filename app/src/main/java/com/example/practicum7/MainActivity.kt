@@ -1,4 +1,3 @@
-
 package com.example.practicum7
 
 import android.os.Bundle
@@ -17,8 +16,5 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-//        supportFragmentManager.beginTransaction()
-//            .replace(R.id.fragment_container, TicketListFragment())
-//            .commit()
     }
 }

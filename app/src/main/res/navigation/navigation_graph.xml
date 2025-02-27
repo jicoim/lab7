@@ -9,7 +9,7 @@
         android:id="@+id/ticketListFragment"
         android:name="com.example.practicum7.TicketListFragment"
         android:label="TicketListFragment"
-        tools:layout = "@layout/fragment_ticket_list">
+        tools:layout="@layout/fragment_ticket_list" >
         <action
             android:id="@+id/show_ticket_detail"
             app:destination="@id/ticketDetailFragment" />
@@ -18,9 +18,21 @@
         android:id="@+id/ticketDetailFragment"
         android:name="com.example.practicum7.TicketDetailFragment"
         android:label="TicketDetailFragment"
-        tools:layout="@layout/fragment_ticket_detail">
+        tools:layout="@layout/fragment_ticket_detail" >
         <argument
             android:name="ticketId"
             app:argType="java.util.UUID" />
+        <action
+            android:id="@+id/select_date"
+            app:destination="@id/datePickerFragment" />
     </fragment>
+    <dialog
+        android:id="@+id/datePickerFragment"
+        android:name="com.example.practicum7.DatePickerFragment"
+        android:label="DatePickerFragment" >
+        <argument
+            android:name="ticketDate"
+            app:argType="java.util.Date" />
+    </dialog>
+
 </navigation>
