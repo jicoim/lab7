@@ -4,14 +4,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Delete
 import com.example.practicum7.Ticket
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
-
 @Dao
 interface TicketDAO {
-
     @Query ("SELECT * FROM ticket")
     fun  getTickets(): Flow<List<Ticket>>
 
@@ -23,4 +22,7 @@ interface TicketDAO {
 
     @Insert
     fun addTicket(ticket:Ticket)
+
+    @Delete
+    fun deleteTicket(ticket: Ticket)
 }

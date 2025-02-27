@@ -1,9 +1,15 @@
 package com.example.practicum7
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -44,6 +50,27 @@ class TicketDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Setup menu
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_ticket_detail, menu)
+
+                // Only show delete option for existing tickets
+                menu.findItem(R.id.delete_ticket)?.isVisible = args.ticketId != null
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.delete_ticket -> {
+                        showDeleteConfirmationDialog()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         binding.apply {
             ticketTitle.doOnTextChanged { text, _, _, _ ->
@@ -90,6 +117,20 @@ class TicketDetailFragment : Fragment() {
                 ticketDetailViewModel.updateTicket { it.copy(date = newDateTime.time) }
             }
         }
+    }
+
+    private fun showDeleteConfirmationDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.confirm_delete)
+            .setMessage(R.string.delete_ticket_message)
+            .setPositiveButton(R.string.delete) { _, _ ->
+                // Delete the ticket and navigate back to the list
+                ticketDetailViewModel.deleteTicket()
+                findNavController().navigateUp()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .create()
+            .show()
     }
 
     private fun updateUi(ticket: Ticket) {

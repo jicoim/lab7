@@ -10,4 +10,12 @@
 
     <!-- Add any other strings your app might need -->
     <string name = "new_ticket">New Ticket</string>
+
+        <!-- Existing strings -->
+        <string name="delete_ticket">Delete</string>
+        <string name="confirm_delete">Confirm Delete</string>
+        <string name="delete_ticket_message">Are you sure you want to delete this ticket?</string>
+        <string name="delete">Delete</string>
+        <string name="cancel">Cancel</string>
+
 </resources>

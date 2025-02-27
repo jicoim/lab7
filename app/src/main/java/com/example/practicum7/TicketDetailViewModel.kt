@@ -1,6 +1,5 @@
 package com.example.practicum7
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -40,6 +39,12 @@ class TicketDetailViewModel(ticketId: UUID?) : ViewModel() {
         }
     }
 
+    fun deleteTicket() {
+        _ticket.value?.let { ticket ->
+            ticketRepository.deleteTicket(ticket)
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         _ticket.value?.let{
@@ -50,7 +55,6 @@ class TicketDetailViewModel(ticketId: UUID?) : ViewModel() {
             }
         }
     }
-
 }
 
 class TicketDetailViewModelFactory(

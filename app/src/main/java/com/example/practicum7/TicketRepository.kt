@@ -1,6 +1,5 @@
 package com.example.practicum7
 
-
 import android.content.Context
 import androidx.room.Room
 import com.example.practicum7.database.TicketDatabase
@@ -34,6 +33,12 @@ class TicketRepository private constructor(
             database.ticketDAO().addTicket(ticket)
         }
     }
+    fun deleteTicket(ticket: Ticket) {
+        coroutineScope.launch {
+            database.ticketDAO().deleteTicket(ticket)
+        }
+    }
+
     companion object {
         private var INSTANCE: TicketRepository? = null
 
