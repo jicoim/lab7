@@ -1,8 +1,6 @@
-
 package com.example.practicum7
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,26 +18,26 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.UUID
 
-private const val TAG = "TicketDetailFragment"
+class TicketDetailFragment : Fragment() {
 
-class TicketDetailFragment : Fragment(R.layout.fragment_ticket_detail) {
-    private val args: TicketDetailFragmentArgs by navArgs()
-    private val ticketDetailViewModel: TicketDetailViewModel by viewModels {
-        TicketDetailViewModelFactory(args.ticketId)
-    }
     private var _binding: FragmentTicketDetailBinding? = null
     private val binding
         get() = checkNotNull(_binding) {
-            "Cannot access the view because it is null."
+            "Cannot access binding because it is null. Is the view visible?"
         }
+
+    private val args: TicketDetailFragmentArgs by navArgs()
+
+    private val ticketDetailViewModel: TicketDetailViewModel by viewModels {
+        TicketDetailViewModelFactory(args.ticketId)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentTicketDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -48,63 +46,87 @@ class TicketDetailFragment : Fragment(R.layout.fragment_ticket_detail) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
-            binding.apply {
-                ticketTitle.doOnTextChanged { text, _, _, _ ->
-                    ticketDetailViewModel.updateTicket { oldTicket ->
-                        oldTicket.copy(title = text.toString())
-                    }
-                }
-
-                ticketSolved.setOnCheckedChangeListener { _, isChecked ->
-                    ticketDetailViewModel.updateTicket { oldTicket ->
-                        oldTicket.copy(isSolved = isChecked)
-                    }
+            ticketTitle.doOnTextChanged { text, _, _, _ ->
+                ticketDetailViewModel.updateTicket { oldTicket ->
+                    oldTicket.copy(title = text.toString())
                 }
             }
 
+            ticketSolved.setOnCheckedChangeListener { _, isChecked ->
+                ticketDetailViewModel.updateTicket { oldTicket ->
+                    oldTicket.copy(isSolved = isChecked)
+                }
+            }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                ticketDetailViewModel.ticket.collect {
-                        ticket -> ticket?.let { updateUi(it) }
+                ticketDetailViewModel.ticket.collect { ticket ->
+                    ticket?.let { updateUi(it) }
                 }
             }
         }
 
+        // Set up fragment result listener for date selection
         setFragmentResultListener(
             DatePickerFragment.REQUEST_KEY_DATE
         ) { _, bundle ->
-            val newDate = bundle.getSerializable(DatePickerFragment.BUNDLE_KEY_DATE) as Date
-            ticketDetailViewModel.updateTicket { oldTicket ->
-                oldTicket.copy(date = newDate.time)
+            val newDate =
+                bundle.getSerializable(DatePickerFragment.BUNDLE_KEY_DATE) as? Date
+            if (newDate != null) {
+                // Convert Date to Long timestamp for your Ticket model
+                ticketDetailViewModel.updateTicket { it.copy(date = newDate.time) }
             }
         }
 
+        // Set up fragment result listener for time selection
+        setFragmentResultListener(
+            TimePickerFragment.REQUEST_KEY_TIME
+        ) { _, bundle ->
+            val newDateTime =
+                bundle.getSerializable(TimePickerFragment.BUNDLE_KEY_TIME) as? Date
+            if (newDateTime != null) {
+                // Convert Date to Long timestamp for your Ticket model
+                ticketDetailViewModel.updateTicket { it.copy(date = newDateTime.time) }
+            }
+        }
+    }
+
+    private fun updateUi(ticket: Ticket) {
+        binding.apply {
+            if (ticketTitle.text.toString() != ticket.title) {
+                ticketTitle.setText(ticket.title)
+            }
+
+            // Format dates for better display
+            val dateFormat = SimpleDateFormat("EEE, MMM d, yyyy", Locale.getDefault())
+            val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+
+            // Convert Long timestamp to Date for formatting
+            val ticketDateTime = Date(ticket.date)
+
+            // Update the date button text
+            ticketDate.text = dateFormat.format(ticketDateTime)
+            ticketDate.setOnClickListener {
+                findNavController().navigate(
+                    TicketDetailFragmentDirections.selectDate(ticketDateTime)
+                )
+            }
+
+            // Update the time button text
+            ticketTime.text = timeFormat.format(ticketDateTime)
+            ticketTime.setOnClickListener {
+                findNavController().navigate(
+                    TicketDetailFragmentDirections.selectTime(ticketDateTime)
+                )
+            }
+
+            ticketSolved.isChecked = ticket.isSolved
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
-    private fun updateUi(ticket: Ticket) {
-        val dateFormat = SimpleDateFormat("EEEE, dd MMM yyyy, HH:mm", Locale.getDefault()) // Example: 26 Feb 2025, 14:30
-
-        binding.apply {
-            if (ticketTitle.text.toString() != ticket.title) {
-                ticketTitle.setText(ticket.title)
-            }
-
-            ticketDate.text = dateFormat.format(Date(ticket.date))
-            ticketDate.setOnClickListener{
-                val currentDate = Date(ticket.date)
-
-                findNavController().navigate((TicketDetailFragmentDirections.selectDate(currentDate)))
-            }
-            ticketSolved.isChecked = ticket.isSolved
-        }
-    }
-
-
 }

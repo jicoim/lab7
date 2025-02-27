@@ -1,7 +1,12 @@
 <resources>
-    <string name="app_name">practicum7</string>
-    <string name="ticket_title_hint">Enter a title for the ticket.</string>
-    <string name="ticket_title_label">Title</string>
-    <string name="ticket_details_label">Details</string>
-    <string name="ticket_solved_label">Solved</string>
+    <!-- Application name used in AndroidManifest -->
+    <string name="app_name">Practicum7</string>
+
+    <!-- Strings for TicketDetailFragment -->
+    <string name="title_label">Title</string>
+    <string name="title_hint">Enter ticket title</string>
+    <string name="details_label">Details</string>
+    <string name="solved_label">Solved</string>
+
+    <!-- Add any other strings your app might need -->
 </resources>

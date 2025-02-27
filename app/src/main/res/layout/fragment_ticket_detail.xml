@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="16dp">
+    android:layout_margin="16dp"
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?attr/textAppearanceHeadline5"
-        android:text="Title" />
+        android:text="@string/title_label" />
 
     <EditText
         android:id="@+id/ticket_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter a title for the ticket."
+        android:hint="@string/title_hint"
         android:importantForAutofill="no"
         android:inputType="text" />
 
@@ -24,18 +24,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?attr/textAppearanceHeadline5"
-        android:text="Details" />
+        android:text="@string/details_label" />
 
     <Button
         android:id="@+id/ticket_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="Wed May 11 11:56 EST 2022" />
+        tools:text="Wed May 11 2022" />
+
+    <Button
+        android:id="@+id/ticket_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        tools:text="3:45 PM" />
 
     <CheckBox
         android:id="@+id/ticket_solved"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Solved" />
+        android:text="@string/solved_label" />
 
 </LinearLayout>

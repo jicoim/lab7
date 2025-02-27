@@ -3,7 +3,6 @@ package com.example.practicum7
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.widget.DatePicker
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
@@ -12,34 +11,39 @@ import java.util.Calendar
 import java.util.Date
 import java.util.GregorianCalendar
 
-class DatePickerFragment() : DialogFragment() {
+class DatePickerFragment : DialogFragment() {
     private val args: DatePickerFragmentArgs by navArgs()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-
-        val dateListener = DatePickerDialog.OnDateSetListener { _: DatePicker, year: Int, month: Int, day: Int ->
-
-            val resultDate = GregorianCalendar(year, month, day).time
-
-            setFragmentResult(
-                REQUEST_KEY_DATE,
-                bundleOf(BUNDLE_KEY_DATE to resultDate)
-            )
-        }
-
-        val dateFromArgs: Date = args.ticketDate
         val calendar = Calendar.getInstance()
-        calendar.time = dateFromArgs
+        // Use the date passed from TicketDetailFragment
+        calendar.time = args.ticketDate
+
         val initialYear = calendar.get(Calendar.YEAR)
         val initialMonth = calendar.get(Calendar.MONTH)
-        val initialDay = calendar.get(Calendar.DAY_OF_MONTH)
+        val initialDate = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val dateListener = DatePickerDialog.OnDateSetListener { _, year, month, day ->
+            val resultCalendar = GregorianCalendar(year, month, day)
+
+            // Preserve the hour and minute from the original date
+            val originalCalendar = Calendar.getInstance()
+            originalCalendar.time = args.ticketDate
+            resultCalendar.set(Calendar.HOUR_OF_DAY, originalCalendar.get(Calendar.HOUR_OF_DAY))
+            resultCalendar.set(Calendar.MINUTE, originalCalendar.get(Calendar.MINUTE))
+
+            val resultDate = resultCalendar.time
+
+            setFragmentResult(REQUEST_KEY_DATE,
+                bundleOf(BUNDLE_KEY_DATE to resultDate))
+        }
 
         return DatePickerDialog(
             requireContext(),
             dateListener,
             initialYear,
             initialMonth,
-            initialDay
+            initialDate
         )
     }
 
