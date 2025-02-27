@@ -1,6 +1,7 @@
 package com.example.practicum7.database
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.example.practicum7.Ticket
@@ -19,4 +20,7 @@ interface TicketDAO {
 
     @Update
     fun updateTicket(ticket:Ticket)
+
+    @Insert
+    fun addTicket(ticket:Ticket)
 }

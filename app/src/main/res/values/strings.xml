@@ -9,4 +9,5 @@
     <string name="solved_label">Solved</string>
 
     <!-- Add any other strings your app might need -->
+    <string name = "new_ticket">New Ticket</string>
 </resources>
