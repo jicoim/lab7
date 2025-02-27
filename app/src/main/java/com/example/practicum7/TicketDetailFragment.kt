@@ -12,7 +12,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -28,6 +30,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import android.Manifest
 
 private const val TAG = "TicketDetailFragment"
 private const val DATE_FORMAT = "EEE, MMM, dd"
@@ -57,6 +60,15 @@ class TicketDetailFragment : Fragment(R.layout.fragment_ticket_detail) {
         return binding.root
     }
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                fetchAssigneePhoneNumber()
+            } else {
+                Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -85,6 +97,15 @@ class TicketDetailFragment : Fragment(R.layout.fragment_ticket_detail) {
 
                 ticketAssignee.isEnabled = canResolveIntent(selectAssigneeIntent)
 
+                binding.ticketCall.setOnClickListener {
+                    if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CONTACTS)
+                        == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        fetchAssigneePhoneNumber()
+                    } else {
+                        requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+                    }
+                }
             }
 
         }
@@ -191,6 +212,38 @@ class TicketDetailFragment : Fragment(R.layout.fragment_ticket_detail) {
                 }
             }
         }
+    }
+
+    private fun fetchAssigneePhoneNumber() {
+        val assigneeName = binding.ticketAssignee.text.toString()
+        if (assigneeName.isBlank() || assigneeName == getString(R.string.ticket_assignee_text)) {
+            Toast.makeText(requireContext(), "No assignee selected", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val cursor = requireActivity().contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),
+            "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} = ?",
+            arrayOf(assigneeName),
+            null
+        )
+
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val phoneNumber = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                callAssignee(phoneNumber)
+            } else {
+                Toast.makeText(requireContext(), "No phone number found", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun callAssignee(phoneNumber: String) {
+        val dialIntent = Intent(Intent.ACTION_DIAL).apply {
+            data = Uri.parse("tel:$phoneNumber")
+        }
+        startActivity(dialIntent)
     }
 
     private fun canResolveIntent(intent: Intent): Boolean {

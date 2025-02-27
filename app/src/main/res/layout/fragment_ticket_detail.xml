@@ -50,4 +50,10 @@
         android:layout_height="wrap_content"
         android:text="@string/ticket_report_text" />
 
+    <Button
+        android:id="@+id/ticket_call"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ticket_call_text" />
+
 </LinearLayout>

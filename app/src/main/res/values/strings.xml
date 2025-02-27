@@ -21,4 +21,6 @@
     <string name="ticket_report">%1$s!
         The ticket was submitted on %2$s. %3$s, and %4$s
     </string>
+    <string name="ticket_call_text">Call Assignee</string>
+
 </resources>
