@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_graph"
+    app:startDestination="@id/ticketListFragment">
+
+    <fragment
+        android:id="@+id/ticketListFragment"
+        android:name="com.example.practicum7.TicketListFragment"
+        android:label="TicketListFragment"
+        tools:layout = "@layout/fragment_ticket_list">
+        <action
+            android:id="@+id/show_ticket_detail"
+            app:destination="@id/ticketDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/ticketDetailFragment"
+        android:name="com.example.practicum7.TicketDetailFragment"
+        android:label="TicketDetailFragment"
+        tools:layout="@layout/fragment_ticket_detail">
+        <argument
+            android:name="ticketId"
+            app:argType="java.util.UUID" />
+    </fragment>
+</navigation>

@@ -18,11 +18,11 @@ class TicketTypeConverter {
     }
 
     @TypeConverter
-    fun fromUUID(uuid: UUID): String {
-        return uuid.toString()
+    fun fromUUID(id: UUID): String {
+        return id.toString()
     }
 
     @TypeConverter
-    fun toUUID(uuid: String): UUID {
-        return UUID.fromString(uuid)
+    fun toUUID(idString: String): UUID {
+        return UUID.fromString(idString)
     }}
