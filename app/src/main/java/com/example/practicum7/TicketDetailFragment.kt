@@ -1,9 +1,18 @@
 package com.example.practicum7
 
+
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
+import android.net.Uri
 import android.os.Bundle
+import android.provider.ContactsContract
+import android.text.format.DateFormat
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -18,26 +27,32 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
-class TicketDetailFragment : Fragment() {
-
+private const val TAG = "TicketDetailFragment"
+private const val DATE_FORMAT = "EEE, MMM, dd"
+class TicketDetailFragment : Fragment(R.layout.fragment_ticket_detail) {
+    private val args: TicketDetailFragmentArgs by navArgs()
+    private val ticketDetailViewModel: TicketDetailViewModel by viewModels {
+        TicketDetailViewModelFactory(args.ticketId)
+    }
     private var _binding: FragmentTicketDetailBinding? = null
     private val binding
         get() = checkNotNull(_binding) {
-            "Cannot access binding because it is null. Is the view visible?"
+            "Cannot access the view because it is null."
         }
 
-    private val args: TicketDetailFragmentArgs by navArgs()
-
-    private val ticketDetailViewModel: TicketDetailViewModel by viewModels {
-        TicketDetailViewModelFactory(args.ticketId)
+    private val selectAssignee = registerForActivityResult(
+        ActivityResultContracts.PickContact()
+    ) { uri: Uri? ->
+        uri?.let { parseContactSelection(it)}
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         _binding = FragmentTicketDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -46,87 +61,147 @@ class TicketDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
-            ticketTitle.doOnTextChanged { text, _, _, _ ->
-                ticketDetailViewModel.updateTicket { oldTicket ->
-                    oldTicket.copy(title = text.toString())
+            binding.apply {
+                ticketTitle.doOnTextChanged { text, _, _, _ ->
+                    ticketDetailViewModel.updateTicket { oldTicket ->
+                        oldTicket.copy(title = text.toString())
+                    }
                 }
+
+                ticketSolved.setOnCheckedChangeListener { _, isChecked ->
+                    ticketDetailViewModel.updateTicket { oldTicket ->
+                        oldTicket.copy(isSolved = isChecked)
+                    }
+                }
+
+                ticketAssignee.setOnClickListener{
+                    selectAssignee.launch(null)
+                }
+
+                val selectAssigneeIntent = selectAssignee.contract.createIntent(
+                    requireContext(),
+                    input = null
+                )
+
+                ticketAssignee.isEnabled = canResolveIntent(selectAssigneeIntent)
+
             }
 
-            ticketSolved.setOnCheckedChangeListener { _, isChecked ->
-                ticketDetailViewModel.updateTicket { oldTicket ->
-                    oldTicket.copy(isSolved = isChecked)
-                }
-            }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                ticketDetailViewModel.ticket.collect { ticket ->
-                    ticket?.let { updateUi(it) }
+                ticketDetailViewModel.ticket.collect {
+                        ticket -> ticket?.let { updateUi(it) }
                 }
             }
         }
 
-        // Set up fragment result listener for date selection
         setFragmentResultListener(
             DatePickerFragment.REQUEST_KEY_DATE
         ) { _, bundle ->
-            val newDate =
-                bundle.getSerializable(DatePickerFragment.BUNDLE_KEY_DATE) as? Date
-            if (newDate != null) {
-                // Convert Date to Long timestamp for your Ticket model
-                ticketDetailViewModel.updateTicket { it.copy(date = newDate.time) }
+            val newDate = bundle.getSerializable(DatePickerFragment.BUNDLE_KEY_DATE) as Date
+            ticketDetailViewModel.updateTicket { oldTicket ->
+                oldTicket.copy(date = newDate.time)
             }
         }
 
-        // Set up fragment result listener for time selection
-        setFragmentResultListener(
-            TimePickerFragment.REQUEST_KEY_TIME
-        ) { _, bundle ->
-            val newDateTime =
-                bundle.getSerializable(TimePickerFragment.BUNDLE_KEY_TIME) as? Date
-            if (newDateTime != null) {
-                // Convert Date to Long timestamp for your Ticket model
-                ticketDetailViewModel.updateTicket { it.copy(date = newDateTime.time) }
-            }
-        }
-    }
-
-    private fun updateUi(ticket: Ticket) {
-        binding.apply {
-            if (ticketTitle.text.toString() != ticket.title) {
-                ticketTitle.setText(ticket.title)
-            }
-
-            // Format dates for better display
-            val dateFormat = SimpleDateFormat("EEE, MMM d, yyyy", Locale.getDefault())
-            val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
-
-            // Convert Long timestamp to Date for formatting
-            val ticketDateTime = Date(ticket.date)
-
-            // Update the date button text
-            ticketDate.text = dateFormat.format(ticketDateTime)
-            ticketDate.setOnClickListener {
-                findNavController().navigate(
-                    TicketDetailFragmentDirections.selectDate(ticketDateTime)
-                )
-            }
-
-            // Update the time button text
-            ticketTime.text = timeFormat.format(ticketDateTime)
-            ticketTime.setOnClickListener {
-                findNavController().navigate(
-                    TicketDetailFragmentDirections.selectTime(ticketDateTime)
-                )
-            }
-
-            ticketSolved.isChecked = ticket.isSolved
-        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun updateUi(ticket: Ticket) {
+        val dateFormat = SimpleDateFormat("EEEE, dd MMM yyyy, HH:mm", Locale.getDefault()) // Example: 26 Feb 2025, 14:30
+
+        binding.apply {
+            if (ticketTitle.text.toString() != ticket.title) {
+                ticketTitle.setText(ticket.title)
+            }
+
+            ticketDate.text = dateFormat.format(Date(ticket.date))
+            ticketDate.setOnClickListener{
+                val currentDate = Date(ticket.date)
+
+                findNavController().navigate((TicketDetailFragmentDirections.selectDate(currentDate)))
+            }
+            ticketSolved.isChecked = ticket.isSolved
+
+            ticketReport.setOnClickListener {
+                val reportIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, getTicketReport(ticket))
+                    putExtra(
+                        Intent.EXTRA_SUBJECT,
+                        getString(R.string.ticket_report_subject)
+                    )
+                }
+
+                val chooserIntent = Intent.createChooser(
+                    reportIntent,
+                    getString(R.string.send_report)
+                )
+
+                startActivity(chooserIntent)
+            }
+
+            ticketAssignee.text = ticket.assignee.ifEmpty {
+                getString(R.string.ticket_assignee_text)
+            }
+        }
+    }
+
+    private fun getTicketReport(ticket: Ticket): String {
+        val solvedString = if (ticket.isSolved) {
+            getString(R.string.ticket_report_solved)
+        } else {
+            getString(R.string.ticket_report_unsolved)
+        }
+
+        val dateString = DateFormat.format(DATE_FORMAT, ticket.date).toString()
+
+        val assigneeText = if (ticket.assignee.isBlank()) {
+            getString(R.string.ticket_report_no_assignee)
+        } else {
+            getString(R.string.ticket_report_assignee, ticket.assignee)
+        }
+
+        return getString(
+            R.string.ticket_report,
+            ticket.title,
+            dateString,
+            solvedString,
+            assigneeText
+        )
+    }
+
+    private fun parseContactSelection(contactUri: Uri) {
+        val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
+
+        val queryCursor = requireActivity().contentResolver
+            .query(contactUri, queryFields, null, null, null)
+
+        queryCursor?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val assignee = cursor.getString(0)
+                ticketDetailViewModel.updateTicket { oldTicket ->
+                    oldTicket.copy(assignee = assignee)
+                }
+            }
+        }
+    }
+
+    private fun canResolveIntent(intent: Intent): Boolean {
+        val packageManager: PackageManager = requireActivity().packageManager
+        val resolvedActivity: ResolveInfo? =
+            packageManager.resolveActivity(
+                intent,
+                PackageManager.MATCH_DEFAULT_ONLY
+            )
+
+        return resolvedActivity != null
+    }
+
 }

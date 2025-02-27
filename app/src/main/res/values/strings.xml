@@ -10,4 +10,15 @@
 
     <!-- Add any other strings your app might need -->
     <string name = "new_ticket">New Ticket</string>
+    <string name="ticket_assignee_text">Choose Assignee</string>
+    <string name="ticket_report_text">Send Ticket Report</string>
+    <string name="ticket_report_solved">The ticket is solved</string>
+    <string name="ticket_report_unsolved">The ticket is not solved</string>
+    <string name="ticket_report_no_assignee">There is no assignee.</string>
+    <string name="ticket_report_assignee">The assignee is %s.</string>
+    <string name="ticket_report_subject">Ticket Report</string>
+    <string name="send_report">Send ticket report via</string>
+    <string name="ticket_report">%1$s!
+        The ticket was submitted on %2$s. %3$s, and %4$s
+    </string>
 </resources>

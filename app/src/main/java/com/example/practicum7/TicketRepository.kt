@@ -1,9 +1,9 @@
 package com.example.practicum7
 
-
 import android.content.Context
 import androidx.room.Room
 import com.example.practicum7.database.TicketDatabase
+import com.example.practicum7.database.migration_1_2
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +19,7 @@ class TicketRepository private constructor(
         TicketDatabase::class.java,
         DATABASE_NAME
     )
+        .addMigrations(migration_1_2)
         .build()
 
     fun getTickets(): Flow<List<Ticket>> = database.ticketDAO().getTickets()
@@ -29,7 +30,8 @@ class TicketRepository private constructor(
             database.ticketDAO().updateTicket(ticket)
         }
     }
-    fun addTicket(ticket: Ticket){
+    fun addTicket(ticket: Ticket)
+    {
         coroutineScope.launch {
             database.ticketDAO().addTicket(ticket)
         }
