@@ -1,13 +1,13 @@
 package com.example.practicum7
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicum7.Ticket
+import com.example.practicum7.TicketRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
 private const val TAG = "TicketListViewModel"
 
 class TicketListViewModel : ViewModel() {

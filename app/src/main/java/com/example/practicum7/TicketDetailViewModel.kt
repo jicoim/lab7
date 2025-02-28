@@ -1,6 +1,5 @@
 package com.example.practicum7
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -21,12 +20,13 @@ class TicketDetailViewModel(ticketId: UUID?) : ViewModel() {
     init {
         viewModelScope.launch {
             try {
-                if(ticketId!=null){
-                    ticketRepository.getTicket(ticketId).collect{
+                if (ticketId != null) {
+                    ticketRepository.getTicket(ticketId).collect {
                         _ticket.value = it
                     }
-                }else{
-                    _ticket.value = Ticket(UUID.randomUUID(),"", Date().time,false)
+                }
+                else{
+                    _ticket.value = Ticket(UUID.randomUUID(), "", Date().time, false)
                 }
             } catch (e: Throwable) {
                 println(e.message)
@@ -43,12 +43,15 @@ class TicketDetailViewModel(ticketId: UUID?) : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         _ticket.value?.let{
-            if(ticketId!=null) {
+            if( ticketId!= null){
                 ticketRepository.updateTicket(it)
-            }else{
+            } else{
                 ticketRepository.addTicket(it)
             }
         }
+//        viewModelScope.launch {
+//            _ticket.value?.let { ticketRepository.updateTicket(it) }
+//        }
     }
 
 }
