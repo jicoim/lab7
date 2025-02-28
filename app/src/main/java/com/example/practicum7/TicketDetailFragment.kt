@@ -110,16 +110,24 @@ class TicketDetailFragment : Fragment(R.layout.fragment_ticket_detail) {
                     takePhoto.launch(photoUri)
                 }
 
+                // Add click listener for the photo to show it in a dialog
+                ticketPhoto.setOnClickListener {
+                    ticketDetailViewModel.ticket.value?.photoFileName?.let { photoFileName ->
+                        val photoFile = File(requireContext().applicationContext.filesDir, photoFileName)
+                        if (photoFile.exists()) {
+                            val dialog = PhotoViewerFragment.newInstance(photoFile.path)
+                            dialog.show(parentFragmentManager, "photo_dialog")
+                        }
+                    }
+                }
+
                 val captureImageIntent = takePhoto.contract.createIntent(
                     requireContext(),
                     Uri.parse("")
                 )
 
                 ticketCamera.isEnabled = canResolveIntent(captureImageIntent)
-
-
             }
-
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -138,7 +146,6 @@ class TicketDetailFragment : Fragment(R.layout.fragment_ticket_detail) {
                 oldTicket.copy(date = newDate.time)
             }
         }
-
     }
 
     override fun onDestroyView() {
@@ -263,5 +270,4 @@ class TicketDetailFragment : Fragment(R.layout.fragment_ticket_detail) {
             }
         }
     }
-
 }
